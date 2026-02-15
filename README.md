@@ -12,6 +12,35 @@ A starting point for Neovim that is:
 
 **NOT** a Neovim distribution, but instead a starting point for your configuration.
 
+## Configuration Layout
+
+Core behavior is split by concern:
+
+- `lua/config/options.lua`: globals and editor options
+- `lua/config/keymaps.lua`: keyboard mappings and autocommands
+- `lua/config/plugins.lua`: plugin registry and lazy UI settings
+- `lua/config/plugins/*.lua`: category plugin lists (`core`, `lsp`, `ui`, `editing`)
+
+`lua/config/defaults.lua` aggregates those modules for a stable API consumed by:
+- `init.lua` applies globals and loads modules
+- `lua/options.lua` applies options
+- `lua/keymaps.lua` applies keymaps/autocmds
+- `lua/lazy-plugins.lua` loads plugin specs
+
+## Testing
+
+Run the full local validation suite with:
+
+```sh
+./tests/test.sh
+```
+
+This checks:
+- Lua syntax for every `*.lua` file
+- Defaults/options/keymaps/autocmd behavior in headless Neovim
+- Plugin registry/category wiring and `lazy.setup` integration (stubbed)
+- `init.lua` boot flow with safe test stubs
+
 ## Installation
 
 ### Install Neovim
@@ -243,4 +272,3 @@ sudo dnf install -y gcc make git ripgrep fd-find unzip neovim
 sudo pacman -S --noconfirm --needed gcc make git ripgrep fd unzip neovim
 ```
 </details>
-

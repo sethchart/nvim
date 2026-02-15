@@ -27,6 +27,20 @@ Core behavior is split by concern:
 - `lua/keymaps.lua` applies keymaps/autocmds
 - `lua/lazy-plugins.lua` loads plugin specs
 
+## Testing
+
+Run the full local validation suite with:
+
+```sh
+./tests/test.sh
+```
+
+This checks:
+- Lua syntax for every `*.lua` file
+- Defaults/options/keymaps/autocmd behavior in headless Neovim
+- Plugin registry/category wiring and `lazy.setup` integration (stubbed)
+- `init.lua` boot flow with safe test stubs
+
 ## Installation
 
 ### Install Neovim

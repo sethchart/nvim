@@ -8,6 +8,8 @@ M.globals = {
 
 M.options = {
   number = true,
+  spell = true,
+  spelllang = 'en_us',
   mouse = 'a',
   showmode = false,
   breakindent = true,

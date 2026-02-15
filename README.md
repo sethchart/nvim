@@ -19,6 +19,7 @@ Core behavior is split by concern:
 - `lua/config/options.lua`: globals and editor options
 - `lua/config/keymaps.lua`: keyboard mappings and autocommands
 - `lua/config/plugins.lua`: plugin registry and lazy UI settings
+- `lua/config/plugins/*.lua`: category plugin lists (`core`, `lsp`, `ui`, `editing`)
 
 `lua/config/defaults.lua` aggregates those modules for a stable API consumed by:
 - `init.lua` applies globals and loads modules

@@ -4,19 +4,19 @@ M.plugin_specs = {
   'NMAC427/guess-indent.nvim',
 }
 
-M.plugin_modules = {
-  'kickstart.plugins.gitsigns',
-  'kickstart.plugins.which-key',
-  'kickstart.plugins.telescope',
-  'kickstart.plugins.lspconfig',
-  'kickstart.plugins.conform',
-  'kickstart.plugins.blink-cmp',
-  'kickstart.plugins.tokyonight',
-  'kickstart.plugins.todo-comments',
-  'kickstart.plugins.mini',
-  'kickstart.plugins.treesitter',
-  'kickstart.plugins.autopairs',
+M.plugin_categories = {
+  core = require 'config.plugins.core',
+  lsp = require 'config.plugins.lsp',
+  ui = require 'config.plugins.ui',
+  editing = require 'config.plugins.editing',
 }
+
+M.plugin_modules = {}
+for _, category in ipairs({ 'core', 'lsp', 'ui', 'editing' }) do
+  for _, module in ipairs(M.plugin_categories[category]) do
+    M.plugin_modules[#M.plugin_modules + 1] = module
+  end
+end
 
 M.lazy_ui_icons = {
   cmd = '⌘',

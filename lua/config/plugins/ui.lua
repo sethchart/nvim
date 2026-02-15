@@ -1,0 +1,3 @@
+return {
+  'kickstart.plugins.tokyonight',
+}

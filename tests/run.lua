@@ -77,6 +77,68 @@ for _, module in ipairs(plugins.plugin_modules) do
   assert_true(type(value) == 'table', 'plugin module should return a table: ' .. module)
 end
 
+local treesitter_specs = require 'kickstart.plugins.treesitter'
+assert_equal(type(treesitter_specs), 'table', 'treesitter module should return a spec list')
+assert_true(type(treesitter_specs[1]) == 'table', 'treesitter module should include a first plugin spec')
+local treesitter_spec = treesitter_specs[1]
+assert_equal(treesitter_spec[1], 'nvim-treesitter/nvim-treesitter', 'treesitter plugin id should match')
+assert_equal(treesitter_spec.branch, 'main', 'treesitter should track main branch API')
+assert_true(type(treesitter_spec.build) == 'function', 'treesitter should define a build function')
+assert_true(type(treesitter_spec.config) == 'function', 'treesitter should define a config function')
+
+local install_calls = {}
+package.loaded['nvim-treesitter'] = nil
+package.preload['nvim-treesitter'] = function()
+  return {
+    setup = function(opts)
+      _G.__test_ts_setup_opts = opts
+    end,
+    install = function(parsers)
+      install_calls[#install_calls + 1] = parsers
+    end,
+    indentexpr = function()
+      return 'TS_INDENT'
+    end,
+  }
+end
+
+treesitter_spec.build()
+assert_equal(#install_calls, 1, 'treesitter build should install parser list once')
+assert_true(vim.tbl_contains(install_calls[1], 'lua'), 'treesitter build should include lua parser')
+assert_true(vim.tbl_contains(install_calls[1], 'vimdoc'), 'treesitter build should include vimdoc parser')
+
+local original_start = vim.treesitter.start
+local started_buffers = {}
+vim.treesitter.start = function(buf)
+  started_buffers[#started_buffers + 1] = buf
+end
+
+treesitter_spec.config()
+assert_equal(_G.__test_ts_setup_opts, {}, 'treesitter setup should be called with empty opts table')
+
+local lua_buf = vim.api.nvim_create_buf(false, true)
+vim.bo[lua_buf].filetype = 'lua'
+vim.api.nvim_exec_autocmds('FileType', { buffer = lua_buf, modeline = false })
+assert_equal(vim.bo[lua_buf].indentexpr, "v:lua.require'nvim-treesitter'.indentexpr()", 'non-ruby buffers should use treesitter indentexpr')
+assert_equal(started_buffers[#started_buffers], lua_buf, 'treesitter.start should run for non-ruby buffers')
+
+local ruby_buf = vim.api.nvim_create_buf(false, true)
+vim.bo[ruby_buf].filetype = 'ruby'
+vim.api.nvim_exec_autocmds('FileType', { buffer = ruby_buf, modeline = false })
+assert_equal(vim.bo[ruby_buf].indentexpr, '', 'ruby buffers should keep default indentexpr')
+assert_equal(started_buffers[#started_buffers], ruby_buf, 'treesitter.start should still run for ruby buffers')
+
+vim.treesitter.start = function()
+  error('no parser')
+end
+
+local missing_parser_buf = vim.api.nvim_create_buf(false, true)
+vim.bo[missing_parser_buf].filetype = 'lua'
+vim.api.nvim_exec_autocmds('FileType', { buffer = missing_parser_buf, modeline = false })
+assert_equal(vim.bo[missing_parser_buf].indentexpr, '', 'missing parser should not set treesitter indentexpr')
+
+vim.treesitter.start = original_start
+
 package.loaded.lazy = nil
 package.loaded['lazy-plugins'] = nil
 package.preload.lazy = function()

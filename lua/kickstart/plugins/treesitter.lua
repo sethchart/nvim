@@ -3,9 +3,14 @@ return {
     'nvim-treesitter/nvim-treesitter',
     branch = 'main',
     build = function()
-      require('nvim-treesitter').install { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+      local config_dir = vim.fn.stdpath 'config'
+      vim.env.PATH = config_dir .. '/node_modules/.bin:' .. vim.env.PATH
+      require('nvim-treesitter').install { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'python', 'query', 'vim', 'vimdoc' }
     end,
     config = function()
+      local config_dir = vim.fn.stdpath 'config'
+      vim.env.PATH = config_dir .. '/node_modules/.bin:' .. vim.env.PATH
+
       local ts = require 'nvim-treesitter'
 
       -- Current API uses explicit setup/install and Neovim's treesitter runtime.
